@@ -40,6 +40,8 @@ public class Inherit {
 		Square s3 = new Square(0.125f);
 		Sawtooth sw = new Sawtooth();
 		Triangle tg = new Triangle();
+		Modulator m200s = new Modulator(sw);
+		m200s.setPeriod(200);
 		
 		// Plot
 		PrintStream ps = new PrintStream(new FileOutputStream(new File("plot.csv")));
@@ -51,8 +53,9 @@ public class Inherit {
 			float s3x = s3.getSample(i);
 			float swx = sw.getSample(i);
 			float tgx = tg.getSample(i);
+			float mx = m200s.getSample(i);
 			
-			ps.println(i+","+s1x+","+s2x+","+s3x+","+swx+","+tgx+";");
+			ps.println(i+","+s1x+","+s2x+","+s3x+","+swx+","+tgx+","+mx+";");
 		}
 		
 		// Done

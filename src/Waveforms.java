@@ -38,6 +38,7 @@ public class Waveforms {
 		Square s3 = new Square(0.125f);
 		Sawtooth sw = new Sawtooth();
 		Triangle t = new Triangle();
+		Sine si = new Sine();
 		Modulator m = new Modulator(sw);
 		m.setPeriod(5);
 
@@ -61,6 +62,10 @@ public class Waveforms {
 		Modulator m440t = new Modulator(t);
 		m440t.setPeriod(440);
 		WaveIO.write(m440t,1000000,"triangle.wav");
+		
+		Modulator m440si = new Modulator(si);
+		m440si.setPeriod(440);
+		WaveIO.write(m440si,1000000,"sine.wav");
 
 		// Plot
 		PrintStream ps = new PrintStream(new FileOutputStream(new File("check.csv")));
@@ -73,12 +78,13 @@ public class Waveforms {
 			float swx = sw.getSample(i);
 			float tx = t.getSample(i);
 			float mx = m.getSample(i);
+			float six = si.getSample(i);
 
 			// What time is this in seconds?
 			float sec = (float)i;
 			sec /= ((float)Inherit.MICROSECONDS_IN_A_SECOND);
 
-			ps.println(sec+","+s1x+","+s2x+","+s3x+","+swx+","+tx+","+mx+";");
+			ps.println(sec+","+s1x+","+s2x+","+s3x+","+swx+","+tx+","+mx+","+six+";");
 		}
 
 		// Check error between
