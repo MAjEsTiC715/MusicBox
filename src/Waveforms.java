@@ -39,6 +39,8 @@ public class Waveforms {
 		Sawtooth sw = new Sawtooth();
 		Triangle t = new Triangle();
 		Sine si = new Sine();
+		Complex c = new Complex();
+		RandomWave r = new RandomWave();
 		Modulator m = new Modulator(sw);
 		m.setPeriod(5);
 
@@ -67,6 +69,14 @@ public class Waveforms {
 		m440si.setPeriod(440);
 		WaveIO.write(m440si,1000000,"sine.wav");
 
+		Modulator m440c = new Modulator(c);
+		m440c.setPeriod(440);
+		WaveIO.write(m440c,1000000,"complex.wav");
+
+		Modulator m440r = new Modulator(r);
+		m440r.setPeriod(440);
+		WaveIO.write(m440r,1000000,"random.wav");
+
 		// Plot
 		PrintStream ps = new PrintStream(new FileOutputStream(new File("check.csv")));
 		for(int i = 0;i < (Inherit.MICROSECONDS_IN_A_SECOND*3);i += 1000) {
@@ -79,12 +89,14 @@ public class Waveforms {
 			float tx = t.getSample(i);
 			float mx = m.getSample(i);
 			float six = si.getSample(i);
+			float cx = c.getSample(i);
+			float rx = r.getSample(i);
 
 			// What time is this in seconds?
 			float sec = (float)i;
 			sec /= ((float)Inherit.MICROSECONDS_IN_A_SECOND);
 
-			ps.println(sec+","+s1x+","+s2x+","+s3x+","+swx+","+tx+","+mx+","+six+";");
+			ps.println(sec+","+s1x+","+s2x+","+s3x+","+swx+","+tx+","+mx+","+six+","+cx+","+rx+";");
 		}
 
 		// Check error between
