@@ -4,13 +4,29 @@ import java.util.Random;
  * */
 public class RandomWave extends Signal {
     Random rand = new Random();
-    float point;
+    private float[] point = new float[1000];
+    private int element;
+    
+    public RandomWave() {
+    	randomGenerator();
+    }
     @Override
     public float getSample(long us) {
         us = us % 1000000;
-        if (us % 1000 == 0) {
-            point = -1.0f + rand.nextFloat() * (1.0f - -1.0f);;
+        if (us == 0) {
+        	element = 0;
         }
-        return point;
+        if (us != 0) {
+        	element++;
+        }
+        return point[element];
+    }
+    
+    public void randomGenerator() {
+    	for (int i = 0; i < 1000; i++) {
+    		float y;
+    		y = -1.0f + rand.nextFloat() * (1.0f - -1.0f);
+    		point[i] = y;
+    	}
     }
 }
