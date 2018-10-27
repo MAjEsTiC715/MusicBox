@@ -20,7 +20,7 @@ plot(x,y6,'m-');
 plot(x,y5,'g-');
 plot(x,y7,'c-');
 plot(x,y8,'k-');
-plot(x,y9,'w-.');
+plot(x,y9,'y-.');
 axis([0 3 -2.5 2.5]);
 legend('Square 50%','Square 25%','Square 12.5%','Sawtooth','Sawtooth 5HZ','Triangle','Sine','Complex','Random');
 xlabel('Time (seconds)');
