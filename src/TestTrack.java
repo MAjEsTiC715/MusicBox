@@ -10,6 +10,7 @@ public class TestTrack {
     public static void main(String[] args) {
 
         // Test instrument
+        //Razorback ins = new Razorback();
         Signal s = new Square(0.5f);
         Instrument ins = new Instrument("square",s,10000,50000,0.5f,10000);
 

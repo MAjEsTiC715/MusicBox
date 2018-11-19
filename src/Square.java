@@ -21,6 +21,9 @@ public class Square extends Signal {
     public Square(float pw) {
         pulseWidth = pw;
     }
+    public void setPulseWidth(float pw) {
+        pulseWidth = pw;
+    }
     @Override
     public float getSample(long us) {
         float percentage = 1000000.0f - (1000000.0f * pulseWidth);
