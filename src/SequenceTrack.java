@@ -13,11 +13,12 @@ public class SequenceTrack extends Signal implements Tracked {
     @Override
     public float getSample(long us) {
         Note[] allNotes = getAllAt(us);
+        float amp = 0.0f;
         for (Note sampleNote : allNotes) {
             sampleNote.configure(ins);
-            return sampleNote.getSample(ins, us);
+            amp += sampleNote.getSample(ins, us);
         }
-        return 0;
+        return amp;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class SequenceTrack extends Signal implements Tracked {
     public void removeAllAt(long us) {
         Note[] noteArray = track.toArray(new Note[track.size()]);
         for (Note sample : noteArray) {
-            if(sample.isInside(us) == false) {
+            if(sample.isInside(us) == true) {
                 remove(sample);
             }
         }
@@ -68,6 +69,6 @@ public class SequenceTrack extends Signal implements Tracked {
 
     @Override
     public Instrument getInstrument() {
-        return new Razorback();
+        return ins;
     }
 }

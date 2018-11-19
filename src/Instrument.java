@@ -33,7 +33,7 @@ public class Instrument extends Signal implements Musical {
 
     @Override
     public Instrument getInstrument() {
-        return new Razorback();
+        return this;
     }
 
     public long getAttack() { return attack; }
