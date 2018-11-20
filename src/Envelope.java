@@ -9,7 +9,14 @@ public class Envelope extends Signal {
     private long releaseTime;
     private long sustainPeriod;
     private Signal s;
-
+    /**
+     * Constructs Instrument setting the given parameters.
+     * @param s the Signal (Waveform) that is specific to that of a Note
+     * @param a the Attack time (microseconds)
+     * @param d the Decay time (microseconds)
+     * @param l the Sustain Level (a y-point between 0.0 and 1.0)
+     * @param r the Release time (microseconds)
+     */
     public Envelope(Signal s, long a, long d, float l, long r) {
         this.s = s;
         this.attackTime = a;

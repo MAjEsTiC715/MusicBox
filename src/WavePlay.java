@@ -9,7 +9,11 @@ import javax.swing.JFrame;
  * Buffering of the bytes and delivers them to the mixer
  * */
 public final class WavePlay {
-
+    /**
+     * Constructs Instrument setting the given parameters.
+     * @param s the Signal (Waveform) that is specific to that of a Note
+     * @param duration the length of the note (microseconds)
+     */
     public static void play (Signal s, long duration) {
         try {
             SourceDataLine line = AudioSystem.getSourceDataLine(WaveIO.FORMAT);
