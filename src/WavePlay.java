@@ -1,4 +1,5 @@
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
@@ -23,9 +24,9 @@ public final class WavePlay {
             WaveIO.writeFully(line, data);
             line.close();
         }
-        catch (Exception LineAvailableException) {
+        catch (LineUnavailableException ex) {
             JFrame f = new JFrame();
-            JOptionPane.showMessageDialog(f, "Error, Can't open audio file: " + LineAvailableException);
+            JOptionPane.showMessageDialog(f, "Error, Can't open audio file: " + ex);
         }
     }
 }

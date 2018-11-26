@@ -32,7 +32,7 @@ public class SequenceTrack extends Signal implements Tracked {
     @Override
     public void add(long p, long d, int hz) {  // Constant time O(1)
         Note newNote = new Note(p, d, hz);
-        track.add(newNote);
+        track.addLast(newNote);
         if ((d + p) > durationOfTrack) {
             this.durationOfTrack = d + p;
         }
@@ -48,8 +48,7 @@ public class SequenceTrack extends Signal implements Tracked {
                 sampleArray.add(sample);
             }
         }
-        if (sampleArray.equals(null)) {
-            System.out.println("returned null");
+        if (sampleArray.isEmpty()) {
             return emptyArray;
         }
         Note[] returnNotes = new Note[sampleArray.size()];
@@ -65,7 +64,7 @@ public class SequenceTrack extends Signal implements Tracked {
     }
 
     @Override
-    public void remove(Note n) {  // Constant time O(1)
+    public void remove(Note n) {  // Amortized Constant time O(1)
         track.removeFirstOccurrence(n);
     }
 

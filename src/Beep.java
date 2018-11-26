@@ -7,26 +7,28 @@ import javax.swing.JFrame;
  * Takes envelope and passes it through Waveplay.play()
  * */
 public class Beep {
-    private static Signal s;
 
     public static void main(String[] args) {
+        Signal s = null;
         String waveName = args[0];
         int pitch = Integer.parseInt(args[1]);
         float duration = Float.parseFloat(args[2]);
         duration *= 1000000.00f;
 
-        if (waveName == "triangle") {
+        if (waveName.equals("triangle")) {
             s = new Triangle();
         }
 
-        if (waveName == "square") {
+        else if (waveName.equals("square")) {
             s = new Square(.5f);
         }
 
-        if (waveName == "sawtooth") {
+        else if (waveName.equals("sawtooth")) {
             s = new Sawtooth();
         }
-
+        if (s == null) {
+            System.out.println("s is null");
+        }
         Modulator m = new Modulator(s);
         m.setPeriod(pitch);
 
