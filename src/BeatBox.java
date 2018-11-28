@@ -25,23 +25,23 @@ import javax.swing.JPanel;
  */
 public class BeatBox {
 
-    private static float tempo = 450000;
+    private static final long TIME_PER_SCALE_NOTE = 100000;
+    private Looper looper;
+    JButton start;
     JPanel mainPanel; // Main panel
     ArrayList<JCheckBox> checkboxList; // All of the check boxes
     Sequencer sequencer; // MIDI sequencer
-    Sequence sequence; // MIDI sequence
-    Track track; // MIDI track
-    SequenceTrack st;
+    public static SequenceTrack st;
     JFrame theFrame; // Container frame
 
     // Instrument names and MIDI codes
-    String[] instrumentNames = {"C4", "D4",
-            "E4","F4", "G4", "A4",
-            "B4", "C5", "D5", "E5", "F5",
-            "G5", "C6", "B5", "C6",
-            "D6"};
+    String[] instrumentNames = {"D6", "C6",
+            "B6","A6", "G5", "F5",
+            "E5", "D5", "C5", "B5", "A5",
+            "G4", "F4", "E4", "D4",
+            "C4"};
 
-    int[] pitch = {60,62,64,65,67,69,70,71,72,74,76,77,79,81,83,84};
+    int[] pitch = {84,83,81,79,77,76,74,72,71,70,69,67,65,64,62,60};
 
     /**
      * Creates a beat box which presents the GUI
@@ -67,7 +67,7 @@ public class BeatBox {
         Box buttonBox = new Box(BoxLayout.Y_AXIS);
 
         // Start button
-        JButton start = new JButton("Start");
+        start = new JButton("Start");
         start.addActionListener(new MyStartListener());
         buttonBox.add(start);
 
@@ -138,34 +138,40 @@ public class BeatBox {
             } // close inner loop
             makeTracks(pitchList);
         } // close outer
-        WavePlay.play(st,st.getLength());
 
     } // close buildTrackAndStart method
-
 
     public class MyStartListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
             buildTrackAndStart();
+            if (a.getSource() == start) {
+                if (looper == null) {
+                    looper = new Looper(st);
+                    Thread t = new Thread(looper);
+                    t.start();
+                }
+            }
         }
     } // close inner class
 
     public class MyStopListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
-            sequencer.stop();
+            looper.stop();
+            looper = null;
         }
     } // close inner class
 
     public class MyUpTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
-            float tempoFactor = tempo;
-            tempo = (tempoFactor * .97f);
+            float tempoFactor = TIME_PER_SCALE_NOTE;
+            //TIME_PER_SCALE_NOTE = (tempoFactor * .97f);
         }
     } // close inner class
 
     public class MyDownTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
-            float tempoFactor = tempo;
-            tempo = (tempoFactor * 1.03f);
+            float tempoFactor = TIME_PER_SCALE_NOTE;
+            //TIME_PER_SCALE_NOTE = (tempoFactor * 1.03f);
         }
     } // close inner class
     public void makeTracks(int[] list) {
@@ -175,7 +181,7 @@ public class BeatBox {
 
             if (key != 0) {
                 int hz = Note.midiToPitch((int)(key));
-                st.add(i * (long)tempo, (long)tempo, hz);
+                st.add(i * TIME_PER_SCALE_NOTE , TIME_PER_SCALE_NOTE, hz);
             }
         }
     }
