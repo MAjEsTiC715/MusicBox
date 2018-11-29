@@ -21,6 +21,7 @@ public class BeatBox {
     JPanel mainPanel; // Main panel
     ArrayList<JCheckBox> checkboxList; // All of the check boxes
     JFrame theFrame; // Container frame
+    JLabel BPMLabel; // label to hold BPM
 
     // Note names
     String[] noteNames = {"D6", "C6",
@@ -90,6 +91,11 @@ public class BeatBox {
         clearBoxes.addActionListener(new MyClearListener());
         buttonBox.add(clearBoxes);
 
+        // BPM counter
+        Box counterBox = new Box(BoxLayout.X_AXIS);
+        BPMLabel = new JLabel("BPM: ...");
+        counterBox.add(BPMLabel);
+
         // The list of instrument labels
         Box nameBox = new Box(BoxLayout.Y_AXIS);
         for (int i = 0; i < 16; i++) {
@@ -99,6 +105,7 @@ public class BeatBox {
         // The labels and the command buttons go here and set color
         background.add(BorderLayout.EAST, buttonBox);
         background.add(BorderLayout.WEST, nameBox);
+        background.add(BorderLayout.NORTH, BPMLabel);
         background.setBackground(Color.cyan);
 
         theFrame.getContentPane().add(background);
@@ -166,12 +173,14 @@ public class BeatBox {
     public class MyUpTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
             tempoFactor = tempoFactor * .97;
+            BPMLabel.setText("BPM: "+ Double.toString((60.0/(tempoFactor/1000000.0)))); // sets BPM
         }
     } // close inner class
 
     public class MyDownTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
             tempoFactor = tempoFactor * 1.03;
+            BPMLabel.setText("BPM: "+ Double.toString((60.0/(tempoFactor/1000000.0)))); // sets BPM
         }
     } // close inner class
 
