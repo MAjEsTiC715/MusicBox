@@ -1,23 +1,9 @@
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.Label;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * "Cyber Beat Box"
@@ -26,21 +12,27 @@ import javax.swing.JPanel;
 public class BeatBox {
 
     private static final long TIME_PER_SCALE_NOTE = 100000;
+    private double tempoFactor = 500000;
+    private SequenceTrack st;
     private Looper looper;
+    private Instrument ins = new Razorback();
+
     JButton start;
     JPanel mainPanel; // Main panel
     ArrayList<JCheckBox> checkboxList; // All of the check boxes
-    Sequencer sequencer; // MIDI sequencer
-    public static SequenceTrack st;
     JFrame theFrame; // Container frame
 
-    // Instrument names and MIDI codes
-    String[] instrumentNames = {"D6", "C6",
+    // Note names
+    String[] noteNames = {"D6", "C6",
             "B6","A6", "G5", "F5",
             "E5", "D5", "C5", "B5", "A5",
             "G4", "F4", "E4", "D4",
             "C4"};
 
+    // Instrument names
+    String[] instrumentNames = {"PWM", "Razorback"};
+
+    // MIDI codes
     int[] pitch = {84,83,81,79,77,76,74,72,71,70,69,67,65,64,62,60};
 
     /**
@@ -62,9 +54,16 @@ public class BeatBox {
         JPanel background = new JPanel(layout);
         background.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
+
         // Make all of the check boxes
         checkboxList = new ArrayList<>();
         Box buttonBox = new Box(BoxLayout.Y_AXIS);
+
+        //Make combo box for instruments
+        JComboBox instrumentList = new JComboBox(instrumentNames);
+        instrumentList.setSelectedIndex(1);
+        instrumentList.addActionListener(new MyInstrumentListener());
+        buttonBox.add(instrumentList);
 
         // Start button
         start = new JButton("Start");
@@ -86,15 +85,21 @@ public class BeatBox {
         downTempo.addActionListener(new MyDownTempoListener());
         buttonBox.add(downTempo);
 
+        // Clear
+        JButton clearBoxes = new JButton("Clear Checkboxes");
+        clearBoxes.addActionListener(new MyClearListener());
+        buttonBox.add(clearBoxes);
+
         // The list of instrument labels
         Box nameBox = new Box(BoxLayout.Y_AXIS);
         for (int i = 0; i < 16; i++) {
-            nameBox.add(new Label(instrumentNames[i]));
+            nameBox.add(new Label(noteNames[i]));
         }
 
-        // The labels and the command buttons go here
+        // The labels and the command buttons go here and set color
         background.add(BorderLayout.EAST, buttonBox);
         background.add(BorderLayout.WEST, nameBox);
+        background.setBackground(Color.cyan);
 
         theFrame.getContentPane().add(background);
 
@@ -113,16 +118,13 @@ public class BeatBox {
             mainPanel.add(c);
         }
 
-
-
         theFrame.setBounds(50,50,300,300); // Sets a preferred size for the frame
         theFrame.pack(); // Makes the frame EXACTLY as big as it should be and no bigger based on what you put in it
         theFrame.setVisible(true); // This actually "opens" the main window
     }
 
-    public void buildTrackAndStart() {
+    private void buildTrackAndStart() {
         int[] pitchList = null;
-        Razorback ins = new Razorback();
         st = new SequenceTrack(ins);
 
         for (int i = 0; i < 16; i++) {
@@ -146,8 +148,8 @@ public class BeatBox {
             buildTrackAndStart();
             if (a.getSource() == start) {
                 if (looper == null) {
-                    looper = new Looper(st);
-                    Thread t = new Thread(looper);
+                    looper = new Looper(st, tempoFactor);
+                    Thread t = new Thread(looper);  //Open new thread
                     t.start();
                 }
             }
@@ -163,28 +165,63 @@ public class BeatBox {
 
     public class MyUpTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
-            float tempoFactor = TIME_PER_SCALE_NOTE;
-            //TIME_PER_SCALE_NOTE = (tempoFactor * .97f);
+            tempoFactor = tempoFactor * .97;
         }
     } // close inner class
 
     public class MyDownTempoListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
-            float tempoFactor = TIME_PER_SCALE_NOTE;
-            //TIME_PER_SCALE_NOTE = (tempoFactor * 1.03f);
+            tempoFactor = tempoFactor * 1.03;
         }
     } // close inner class
-    public void makeTracks(int[] list) {
+
+
+    public class MyInstrumentListener implements ActionListener {
+        public void actionPerformed(ActionEvent a) {
+            JComboBox cb = (JComboBox)a.getSource();
+            String InstrumentName = (String)cb.getSelectedItem();
+            updateLabel(InstrumentName);
+        }
+    } // close inner class
+
+    public class MyClearListener implements ActionListener {
+        public void actionPerformed(ActionEvent a) {
+            clear();
+        }
+    } // close inner class
+
+    private void makeTracks(int[] list) {
 
         for (int i = 0; i < 16; i++) {
             long key = list[i];
 
             if (key != 0) {
                 int hz = Note.midiToPitch((int)(key));
-                st.add(i * TIME_PER_SCALE_NOTE , TIME_PER_SCALE_NOTE, hz);
+                st.add(i * (long)tempoFactor, TIME_PER_SCALE_NOTE, hz);
             }
         }
     }
+    /**
+     * creates new instrument
+     * @param name label name for ComboBox
+     */
+    protected void updateLabel(String name) {
+        if (name == "PWM") {
+            this.ins = new PWM();
+        }
+        if (name == "Razorback") {
+            this.ins = new Razorback();
+        }
+    }
 
-
-    } // close class
+    protected void clear() {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++ ) {
+                JCheckBox jc = checkboxList.get(j + (16*i));
+                if ( jc.isSelected()) {
+                    jc.setSelected(false);
+                }
+            } // close inner loop
+        } // close outer
+    }
+} // close class

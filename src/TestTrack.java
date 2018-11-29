@@ -2,7 +2,7 @@
  * Tests implementation of sequence
  */
 public class TestTrack {
-    public static final long TIME_PER_SCALE_NOTE = 450000; // When playing all the notes on the piano, this is the duration for each note
+    public static final long TIME_PER_SCALE_NOTE = 250000; // When playing all the notes on the piano, this is the duration for each note
     /**
      * Scale the piano really fast and then play a song
      * @param args (ignored)
@@ -18,7 +18,7 @@ public class TestTrack {
         SequenceTrack st = new SequenceTrack(ins);
         for(long i = 0;i < 13;i++) {
             int hz = Note.midiToPitch((int)(i+24+12*3)); // Notes starting from C4 to C5
-            st.add(i*TIME_PER_SCALE_NOTE,TIME_PER_SCALE_NOTE,hz);
+            st.add(i*TIME_PER_SCALE_NOTE*4,TIME_PER_SCALE_NOTE,hz);
         }
         WavePlay.play(st,st.getLength());
 
