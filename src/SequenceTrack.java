@@ -8,7 +8,7 @@ import java.util.LinkedList;
 public class SequenceTrack extends Signal implements Tracked {
     private long durationOfTrack; // length of entire track
     private Instrument ins; //Instrument note
-    private LinkedList<Note> track = new LinkedList<>();
+    protected LinkedList<Note> track = new LinkedList<>();
 
     /**
      * Adds the note to this track.
