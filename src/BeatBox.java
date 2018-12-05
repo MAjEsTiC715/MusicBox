@@ -21,6 +21,7 @@ public class BeatBox {
 
     JButton start;
     JButton saveButton;
+    JButton openButton;
     JPanel mainPanel; // Main panel
     ArrayList<JCheckBox> checkboxList; // All of the check boxes
     JFrame theFrame; // Container frame
@@ -29,20 +30,20 @@ public class BeatBox {
     JTextArea log;
 
     // Note names
-    String[] noteNames = {"D6", "C6",
-            "B6","A6", "G5", "F5",
-            "E5", "D5", "C5", "B5", "A5",
-            "G4", "F4", "E4", "D4",
-            "C4"};
+    String[] noteNames = {"C6", "B5",
+            "A5#","A5", "G5", "G5#",
+            "F5#", "F5", "E5", "D5#", "D5",
+            "C5#", "C5", "B4", "A4#",
+            "A4"};
 
     // Instrument names
     String[] instrumentNames = {"PWM", "Razorback"};
 
     // MIDI codes
-    int[] pitch = {84,83,81,79,77,76,74,72,71,70,69,67,65,64,62,60};
+    int[] pitch = {84,83,82,81,80,79,78,77,76,75,74,73,72,71,70,69};
 
     // Keeps track of notes applied for the track
-    int[] notesApplied = new int[16];
+    ArrayList<Integer> noteMidiApplied = new ArrayList<>();
 
     /**
      * Creates a beat box which presents the GUI
@@ -57,7 +58,7 @@ public class BeatBox {
      */
     public void buildGUI() {
         // Prepare the container frame
-        theFrame = new JFrame("Cyber BeatBox");
+        theFrame = new JFrame("My Music Box");
         theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         BorderLayout layout = new BorderLayout();
         JPanel background = new JPanel(layout);
@@ -71,7 +72,7 @@ public class BeatBox {
         JScrollPane logScrollPane = new JScrollPane(log);
 
         fc = new JFileChooser(); // create a file chooser
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         // Make all of the check boxes
         checkboxList = new ArrayList<>();
@@ -108,10 +109,13 @@ public class BeatBox {
         clearBoxes.addActionListener(new MyClearListener());
         buttonBox.add(clearBoxes);
 
-        // Save
+        // Save and Open
         saveButton = new JButton("Save Track");
-        saveButton.addActionListener(new MySaveListener());
+        openButton = new JButton("Open File");
+        saveButton.addActionListener(new MySaveAndOpenListener());
+        openButton.addActionListener(new MySaveAndOpenListener());
         buttonBox.add(saveButton);
+        buttonBox.add(openButton);
 
         // BPM counter
         Box counterBox = new Box(BoxLayout.X_AXIS);
@@ -225,12 +229,23 @@ public class BeatBox {
         }
     } // close inner class
 
-    public class MySaveListener implements ActionListener {
+    public class MySaveAndOpenListener implements ActionListener {
         public void actionPerformed(ActionEvent a) {
             if (a.getSource() == saveButton) {
                 int returnVal = fc.showSaveDialog(fc);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = createFile();
+                    //This is where a real application would save the file.
+                    log.append("Saving: " + file.getName() + "." + newline);
+                } else {
+                    log.append("Save command cancelled by user." + newline);
+                }
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+            else if (a.getSource() == openButton) {
+                int returnVal = fc.showSaveDialog(fc);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = openFile();
                     //This is where a real application would save the file.
                     log.append("Saving: " + file.getName() + "." + newline);
                 } else {
@@ -249,7 +264,7 @@ public class BeatBox {
             if (key != 0) {
                 int hz = Note.midiToPitch((int)(key));
                 st.add(i * (long)tempoFactor, TIME_PER_SCALE_NOTE, hz);
-                notesApplied[i] = i;
+                noteMidiApplied.add((int)key);
             }
         }
     }
@@ -278,28 +293,20 @@ public class BeatBox {
     }
 
     protected File createFile() {
-        File fileout = new File("C:\\Users\\noahg\\Desktop\\all COLLEGE\\August Semester 2018\\CS 259\\test.txt");
+        File fileout = fc.getSelectedFile();
         String instrumentName = ins.getName();
         int numOfNotes = st.track.size();
-        int[] tempNotes = new int[numOfNotes];
         int noteCount = 0;
-
-        for (int midiNote : notesApplied) {
-            int i = 0;
-            if (midiNote != 0) {
-                tempNotes[i] = midiNote;
-                i++;
-            }
-        }
 
         try {
             Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileout), "UTF8"));
-            out.append(instrumentName + numOfNotes).append("\r\n");
+            out.append(instrumentName +" "+ numOfNotes).append("\r\n");
             for (Note sample: st.track) {
                 long position = sample.getPosition();
-                String frequency = Note.notToPitch(tempNotes[noteCount]);
+                int midiCode = Note.midiToPitch(noteMidiApplied.get(noteCount));
+                String frequency = Note.noteToPitch(midiCode);
                 long duration = TIME_PER_SCALE_NOTE + position;
-                out.append(position + frequency + duration).append("\r\n");
+                out.append(position +" "+ frequency +" "+ duration).append("\r\n");
                 noteCount++;
             }
             out.flush();
@@ -309,5 +316,26 @@ public class BeatBox {
             e.printStackTrace();
         }
         return fileout;
+    }
+
+    protected File openFile() {
+        File filein = fc.getSelectedFile();
+        try {
+            FileReader fileReader = new FileReader(filein);
+            BufferedReader reader = new BufferedReader(fileReader);
+
+            String line = null;
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            reader.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return filein;
     }
 } // close class

@@ -1,4 +1,7 @@
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A single note.
@@ -26,14 +29,22 @@ public class Note {
     private static HashMap<Integer, String> hmap =  new HashMap<>();
 
     public static void buildNoteMap() {
-        for (int i = 0; i < NAMES.length; i++) {
+        for (int i = 0; i < MIDI_21.length; i++) {
             hmap.put(MIDI_21[i], NAMES[i]);
         }
     }
 
-    public static String notToPitch(int noteLabel) {
-        String var = hmap.get(noteLabel);
-        return var;
+    public static String noteToPitch(int noteLabel) {
+        Set set = hmap.entrySet();
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry mEntry = (Map.Entry)iterator.next();
+            int key = (int)mEntry.getKey();
+            if (key == noteLabel) {
+                return (String)mEntry.getValue();
+            }
+        }
+        return "None";
     }
     /**
      * Converts from the MIDI key code to a pitch (in hertz / times a second).
@@ -44,8 +55,8 @@ public class Note {
         mk -= 21;
         if(mk < 0)
             return 0; // Not defined but are valid MIDI codes
-        if(mk >= 88)
-            return 0; // Too high
+        //if(mk >= 88)
+            //return 0; // Too high
         return MIDI_21[mk];
     }
     /**
