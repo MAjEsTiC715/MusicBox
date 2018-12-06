@@ -1,10 +1,9 @@
-# Waveforms
-1.) Create 3 types of waveforms: Sawtooth, Square, Triangle
+# BeatBox
+A GUI program that uses INSTRUMENTS that have been created using an ENVELOPE and MODULATOR which use WAVEFORMS that are calculated using microseconds and getting a specific point getSample based on that position in time.
 
-2.) Have those waves output a point on a y-axis -1 to 1
+A Sequence Track that utilized a Linked List holds all the NOTES that have been created using a specific INSTRUMENT 
 
-3.) X-axis is in MICROSECONDS and each period of each wave is 1 second or 1,000,000 MICROSECONDS
+The GUI is designed to create a track by marking the checkboxes that correlate to the specific note.
+It also has the ability to save .txt files in a specific format and allow for shared content of tracks.
 
-4.) Takes plotted points and creates .wav files for each at 440hz
-
-5.) MyForm.eps displays the graphs for each waveform
+**open file does not work properly**
