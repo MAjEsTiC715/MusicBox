@@ -37,7 +37,7 @@ public class BeatBox {
             "A4"};
 
     // Instrument names
-    String[] instrumentNames = {"PWM", "Razorback"};
+    String[] instrumentNames = {"pwm", "razorback"};
 
     // MIDI codes
     int[] pitch = {84,83,82,81,80,79,78,77,76,75,74,73,72,71,70,69};
@@ -273,14 +273,17 @@ public class BeatBox {
      * @param name label name for ComboBox
      */
     protected void updateLabel(String name) {
-        if (name == "PWM") {
+        if (name.equals("pwm")) {
             this.ins = new PWM();
         }
-        if (name == "Razorback") {
+        if (name.equals("razorback")) {
             this.ins = new Razorback();
         }
     }
 
+    /**
+     * Clears checkboxes
+     */
     protected void clear() {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++ ) {
@@ -291,9 +294,11 @@ public class BeatBox {
             } // close inner loop
         } // close outer
     }
-
+    /**
+     * User chooses type of file and appends specific output
+     */
     protected File createFile() {
-        File fileout = fc.getSelectedFile();
+        File fileout = fc.getSelectedFile();  // Choose file
         String instrumentName = ins.getName();
         int numOfNotes = st.track.size();
         int noteCount = 0;
@@ -317,9 +322,14 @@ public class BeatBox {
         }
         return fileout;
     }
-
+    /**
+     * User selects file and loads in the objects and marks the checkboxes
+     */
     protected File openFile() {
         File filein = fc.getSelectedFile();
+        ArrayList<Integer> midiArrayList = new ArrayList<>(); // Midi's collected
+        ArrayList<Integer> positionList = new ArrayList<>(); // Positions collected
+        ArrayList<Integer> noteIndexList = new ArrayList<>(); // Index of Midi's in reference to Pitch
         try {
             FileReader fileReader = new FileReader(filein);
             BufferedReader reader = new BufferedReader(fileReader);
@@ -327,7 +337,20 @@ public class BeatBox {
             String line = null;
 
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                boolean gotInstrument = false;
+                String[] word = line.split(" ");
+                if (word[0].equals("razorback") || word[0].equals("pwm")) {
+                    gotInstrument = true;
+                    updateLabel(word[0]); // creates Instrument
+                }
+                int midi = Note.pitchToNote(word[1]) + 21;
+                if (midi > 21) {
+                    midiArrayList.add(midi);
+                }
+                if (gotInstrument == false) {
+                    int position = Integer.parseInt(word[0]);
+                    positionList.add(position);
+                }
             }
 
             reader.close();
@@ -335,6 +358,42 @@ public class BeatBox {
         catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Set Tempo
+        this.tempoFactor = positionList.get(1) - positionList.get(0);
+
+        for (int i = 0; i < pitch.length; i++) {
+            int val = pitch[i];
+            for (int j = 0; j < midiArrayList.size(); j++) {
+                int key = midiArrayList.get(j);
+                if (key == val) {
+                    noteIndexList.add(i);
+                }
+            }
+        }
+        // Checks the CheckBoxes (cant check same positions of different notes)
+        for (int x = 0; x < noteIndexList.size(); x++) {
+            long pos = positionList.get(x);
+            int prevPos = 1;
+
+            if (x < noteIndexList.size() - 1) {
+                prevPos = (int) pos % positionList.get(x + 1);
+            }
+
+            System.out.println(prevPos);
+            for (int y = 0; y < noteIndexList.size(); y++ ) {
+                JCheckBox jc = (JCheckBox) checkboxList.get(y + (16*x));
+                int index2 = noteIndexList.get(y);
+                if (x == index2) {
+                    jc.setSelected(true);
+                    if (prevPos == 0) {
+                        jc.setSelected(true);
+                    }
+                } else {
+                    jc.setSelected(false);
+                }
+            } // close inner loop
+        } // close outer
 
         return filein;
     }

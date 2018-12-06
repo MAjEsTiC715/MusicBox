@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A single note.
@@ -27,13 +24,18 @@ public class Note {
     private long duration; // Length of time the note is to be held down
     private int pitch; // Frequency to play at
     private static HashMap<Integer, String> hmap =  new HashMap<>();
-
+    /**
+     * Builds hashmap with the midi code as the key and names as the value
+     */
     public static void buildNoteMap() {
         for (int i = 0; i < MIDI_21.length; i++) {
             hmap.put(MIDI_21[i], NAMES[i]);
         }
     }
-
+    /**
+     * gets value based on key
+     * @param noteLabel the midi code
+     */
     public static String noteToPitch(int noteLabel) {
         Set set = hmap.entrySet();
         Iterator iterator = set.iterator();
@@ -47,6 +49,35 @@ public class Note {
         return "None";
     }
     /**
+     * gets key based on value adds it to list and returns the index
+     * at which that key (midi code) is in the list above
+     * @param note the name of note (C4)
+     */
+    public static int pitchToNote(String note) {
+        ArrayList<Integer> tempList = new ArrayList<>();
+        Set set = hmap.entrySet();
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry mEntry = (Map.Entry)iterator.next();
+            String value = (String)mEntry.getValue();
+            if (value.equals(note)) {
+                int key = (int)mEntry.getKey();
+                tempList.add(key);
+            }
+        }
+        // find index
+        for (int i = 0; i < tempList.size(); i++) {
+            int k = tempList.get(i);
+            for (int index = 0; index < MIDI_21.length; index++) {
+                int v = MIDI_21[index];
+                if (k == v) {
+                    return index;
+                }
+            }
+        }
+        return 0;
+    }
+    /**
      * Converts from the MIDI key code to a pitch (in hertz / times a second).
      * @param mk MIDI code
      * @return the pitch
@@ -55,8 +86,8 @@ public class Note {
         mk -= 21;
         if(mk < 0)
             return 0; // Not defined but are valid MIDI codes
-        //if(mk >= 88)
-            //return 0; // Too high
+        if(mk >= 88)
+            return 0; // Too high
         return MIDI_21[mk];
     }
     /**
